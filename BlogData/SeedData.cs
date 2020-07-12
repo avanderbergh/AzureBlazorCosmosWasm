@@ -17,7 +17,6 @@ namespace BlogData
         public static async Task SeedDataAsync()
         {
             using var context = new BlogContext();
-            await context.Database.EnsureDeletedAsync();
             await context.Database.EnsureCreatedAsync();
 
             var myBlog = new Blog

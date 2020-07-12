@@ -57,6 +57,8 @@ namespace CosmosAuthentication
             if (!principal.Identity.IsAuthenticated)
             {
                 log.LogWarning("Request was not authenticated.");
+                log.LogInformation(principal.Identity.IsAuthenticated.ToString());
+                log.LogInformation(principal.Identity.Name);
                 return new UnauthorizedResult();
             }
 

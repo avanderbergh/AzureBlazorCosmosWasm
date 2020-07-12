@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <BlazorWebAssemblyEnableLinking>false</BlazorWebAssemblyEnableLinking>
+    <GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
 
   <ItemGroup>
