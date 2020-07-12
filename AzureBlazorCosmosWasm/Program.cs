@@ -51,6 +51,8 @@ namespace AzureBlazorCosmosWasm
             // register the client to load blogs from Cosmos DB.
             builder.Services.AddTransient<BlogClient>();
 
+            builder.Services.AddDevExpressBlazor();
+
             await builder.Build().RunAsync();
         }
     }

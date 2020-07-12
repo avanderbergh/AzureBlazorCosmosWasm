@@ -5,6 +5,11 @@
     <h1>Blogs</h1>
     @foreach (var blog in Blogs)
     {
+        <DxDataGrid Data="@blog.Posts">
+            <DxDataGridColumn Field="@nameof(Post.Title)"/>
+            <DxDataGridCheckBoxColumn Field="@nameof(Post.IsActive)"/>
+        </DxDataGrid>
+
         <h2><a href="@blog.Url" target="_blank">@blog.Name</a></h2>
         <ul>
             @foreach (var post in blog.Posts)
