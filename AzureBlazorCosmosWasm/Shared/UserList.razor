@@ -1,0 +1,47 @@
+﻿@using SuperCodeData
+ 
+@if (Users != null)
+{
+    <h1>Users</h1>
+    @foreach (var user in Users)
+    {
+      <p>@user.FirstName</p>
+    }
+    <DxDataGrid Data="@Users"
+                RowInserting="@((newValues) => OnRowInserting(newValues))"
+    >
+      <DxDataGridCommandColumn />
+      <DxDataGridColumn Field="@nameof(User.FirstName)"/>
+      <DxDataGridColumn Field="@nameof(User.LastName)"/>
+    </DxDataGrid>
+}
+
+@code {
+    /// <summary>
+    /// The list of <see cref="User"/> to render.
+    /// </summary>
+    [Parameter]
+    public List<User> Users { get; set; }
+
+    static User UpdateItem(User item, Dictionary<string, object> itemProperties) {
+      foreach (var field in itemProperties.Keys) {
+        switch (field) {
+          case "FirstName":
+            item.FirstName = (string)itemProperties[nameof(User.FirstName)];
+            break;
+          case "LastName":
+            item.LastName = (string)itemProperties[nameof(User.LastName)];
+            break;
+        }
+      }
+      return item;
+    }
+
+    void OnRowInserting(Dictionary<string, object> itemProperties) {
+      using (var context = new SuperCodeContext())
+      {
+        context.Users.Add(UpdateItem(new User(), itemProperties));
+        context.SaveChanges();
+      }
+    }
+}

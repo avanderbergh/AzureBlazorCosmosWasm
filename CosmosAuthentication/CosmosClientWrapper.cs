@@ -82,13 +82,13 @@ namespace CosmosAuthentication
         /// <returns>A populated <see cref="CosmosToken"/> instance.</returns>
         public async Task<CosmosToken> GetTokenForId(string id)
         {
-            var database = _client.GetDatabase(BlogContext.MyBlogs);
+            var database = _client.GetDatabase(SuperCodeContext.SuperCode);
             var cosmosUser = await CreateOrReadUserAsync(database, id);
             var permissionId = $"Permission-{id}-blogs";
-            var container = database.GetContainer(nameof(BlogContext));
+            var container = database.GetContainer(nameof(SuperCodeContext));
             var permissions = new PermissionProperties(
                 id: permissionId,
-                permissionMode: PermissionMode.Read,
+                permissionMode: PermissionMode.All,
                 container: container);
             await cosmosUser.UpsertPermissionAsync(permissions);
             _logger.LogInformation("Permissions upsert for {user} successful.", id);

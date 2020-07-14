@@ -49,7 +49,7 @@ namespace AzureBlazorCosmosWasm
             builder.Services.AddTransient<TokenClient>();
 
             // register the client to load blogs from Cosmos DB.
-            builder.Services.AddTransient<BlogClient>();
+            builder.Services.AddTransient<SuperCodeClient>();
 
             builder.Services.AddDevExpressBlazor();
 

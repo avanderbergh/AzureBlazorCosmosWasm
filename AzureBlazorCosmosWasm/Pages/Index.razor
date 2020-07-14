@@ -4,11 +4,11 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore 
-@using BlogData  
+@using SuperCodeData  
 
 @attribute [Authorize]
 
-@inject BlogClient Client
+@inject SuperCodeClient Client
 
 <h1>Welcome to EF Core and Cosmos DB in a Blazor WebAssembly App!</h1>
 
@@ -20,7 +20,7 @@ else
 {
     <button @onclick="Reset">Reset</button>
 }
-@if (!FirstTime && Blogs == null && string.IsNullOrWhiteSpace(ErrorMessage))
+@if (!FirstTime && Users == null && string.IsNullOrWhiteSpace(ErrorMessage))
 {
     <p class="alert alert-information">Loading...</p>
 }
@@ -28,49 +28,35 @@ else
 {
     <p class="alert alert-danger">@ErrorMessage</p>
 }
-@if (Blogs != null)
+@if (Users != null)
 {
-    <BlogsList Blogs="Blogs"/>
+    <UserList Users="Users"/>
 }
 
 @code {
 
-    /// <summary>
-    /// If there is an error.
-    /// </summary>
+
     public string ErrorMessage;
 
-    /// <summary>
-    /// The list of <see cref="Blog"/>.
-    /// </summary>
-    public List<Blog> Blogs = null;
 
-    /// <summary>
-    /// <c>true</c> to reset to intial state.
-    /// </summary>
+    public List<User> Users = null;
+
     public bool FirstTime = true;
 
-    /// <summary>
-    /// Start over.
-    /// </summary>
     protected void Reset()
     {
-        Blogs = null;
+        Users = null;
         FirstTime = true;
         ErrorMessage = null;
     }
 
-    /// <summary>
-    /// Grab some <see cref="Blog"/> instances.
-    /// </summary>
-    /// <returns>Asynchronous <see cref="Task"/>.</returns>
     protected async Task GoAsync()
     {
         FirstTime = false;
         try
         {
             using var context = await Client.GetDbContextAsync();
-            Blogs = await context.Blogs.ToListAsync();
+            Users = await context.Users.ToListAsync();
         }
         catch (AccessTokenNotAvailableException aex)
         {
