@@ -16,5 +16,11 @@ namespace SuperCodeData
         {
 
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>().HasPartitionKey(o => o.FirstName);
+        }
+
     }
 }

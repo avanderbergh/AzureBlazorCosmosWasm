@@ -1,4 +1,8 @@
-﻿@using SuperCodeData
+﻿@using AzureBlazorCosmosWasm.Data
+
+@using SuperCodeData
+
+@inject SuperCodeClient Client
  
 @if (Users != null)
 {
@@ -37,11 +41,13 @@
       return item;
     }
 
-    void OnRowInserting(Dictionary<string, object> itemProperties) {
-      using (var context = new SuperCodeContext())
+    protected async void OnRowInserting(Dictionary<string, object> itemProperties) {
+      User newUser = UpdateItem(new User(), itemProperties);
+      Users.Add(newUser);
+      using (var context = await Client.GetDbContextAsync())
       {
-        context.Users.Add(UpdateItem(new User(), itemProperties));
-        context.SaveChanges();
+        context.Users.Add(newUser);
+        await context.SaveChangesAsync();
       }
     }
 }
