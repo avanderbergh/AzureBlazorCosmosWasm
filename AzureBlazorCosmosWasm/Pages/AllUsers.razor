@@ -1,0 +1,21 @@
+@page "/users";
+
+@using AzureBlazorCosmosWasm.Data
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore 
+@using SuperCodeData  
+
+@attribute [Authorize]
+
+@inject SuperCodeClient Client
+
+@if (ErrorMessage != null)
+{
+    <p class="alert alert-danger">@ErrorMessage</p>
+}
+<UserList />
+
+@code {
+    public string ErrorMessage;
+}

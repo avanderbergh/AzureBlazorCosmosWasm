@@ -1,29 +1,25 @@
 ﻿@using AzureBlazorCosmosWasm.Data
-
+@using Syncfusion.Blazor.Data
 @using SuperCodeData
 
 @inject SuperCodeClient Client
  
-@if (Users != null)
-{
-    <h1>Users</h1>
-    @foreach (var user in Users)
-    {
-      <p>@user.FirstName</p>
-    }
-    <DxDataGrid Data="@Users"
-                RowInserting="@((newValues) => OnRowInserting(newValues))"
-    >
-      <DxDataGridCommandColumn />
-      <DxDataGridColumn Field="@nameof(User.FirstName)"/>
-      <DxDataGridColumn Field="@nameof(User.LastName)"/>
-    </DxDataGrid>
-}
+
+<h1>Users</h1>
+<h2>SyncFusion</h2>
+<SfGrid TValue="User" AllowPaging="true" Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update" })">
+    <SfDataManager Adaptor="Adaptors.CustomAdaptor">
+    <EFCoreCosmosAdaptor />
+    </SfDataManager>
+  <GridPageSettings PageSize="20"/>
+  <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true"></GridEditSettings>
+  <GridColumns>
+    <GridColumn Field="@nameof(User.FirstName)"/>
+    <GridColumn Field="@nameof(User.LastName)"/>
+  </GridColumns>
+</SfGrid>
 
 @code {
-    /// <summary>
-    /// The list of <see cref="User"/> to render.
-    /// </summary>
     [Parameter]
     public List<User> Users { get; set; }
 

@@ -5,55 +5,63 @@ using AzureBlazorCosmosWasm.Data;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Syncfusion.Blazor;
+using SuperCodeData;
 
-namespace AzureBlazorCosmosWasm
-{
-    public class Program
-    {
-        public static async Task Main(string[] args)
-        {
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<App>("app");
+namespace AzureBlazorCosmosWasm {
+    public class Program {
+        public static async Task Main (string[] args) {
+
+            var builder = WebAssemblyHostBuilder.CreateDefault (args);
+            builder.RootComponents.Add<App> ("app");
+
+            static string syncfusionLicenseKey (WebAssemblyHostBuilder builder) =>
+                builder.Configuration
+                .GetSection ("Syncfusion")
+                .GetValue<string> ("LicenseKey");
+
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense (syncfusionLicenseKey(builder));
 
             // set up a delegate to get the endpoint of the function
             // to fetch the token
-            static string functionEndpoint(WebAssemblyHostBuilder builder) =>
+            static string functionEndpoint (WebAssemblyHostBuilder builder) =>
                 builder.Configuration
-                    .GetSection(nameof(TokenClient))
-                    .GetValue<string>(nameof(CosmosAuthorizationMessageHandler.Endpoint));
+                .GetSection (nameof (TokenClient))
+                .GetValue<string> (nameof (CosmosAuthorizationMessageHandler.Endpoint));
 
             // sets up Azure Active Directory authentication and adds the 
             // user_impersonation scope to access functions.
-            builder.Services.AddMsalAuthentication(options =>
-            {
+            builder.Services.AddMsalAuthentication (options => {
                 options.ProviderOptions
-                .DefaultAccessTokenScopes.Add($"{functionEndpoint(builder)}user_impersonation");
-                builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
+                    .DefaultAccessTokenScopes.Add ($"{functionEndpoint(builder)}user_impersonation");
+                builder.Configuration.Bind ("AzureAd", options.ProviderOptions.Authentication);
             });
 
             // set up the authorization handler to inject tokens
-            builder.Services.AddTransient<CosmosAuthorizationMessageHandler>();
+            builder.Services.AddTransient<CosmosAuthorizationMessageHandler> ();
 
             // configure the default client (talks to own domain)
-            builder.Services.AddTransient(sp => new HttpClient()
-            { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddTransient (sp => new HttpClient () { BaseAddress = new Uri (builder.HostEnvironment.BaseAddress) });
 
             // configure the client to talk to the Azure Functions endpoint.
-            builder.Services.AddHttpClient(nameof(TokenClient),
-                client =>
-                {
-                    client.BaseAddress = new Uri(functionEndpoint(builder));
-                }).AddHttpMessageHandler<CosmosAuthorizationMessageHandler>();
+            builder.Services.AddHttpClient (nameof (TokenClient),
+                client => {
+                    client.BaseAddress = new Uri (functionEndpoint (builder));
+                }).AddHttpMessageHandler<CosmosAuthorizationMessageHandler> ();
 
             // register the client to retrieve Cosmos DB tokens.
-            builder.Services.AddTransient<TokenClient>();
+            builder.Services.AddTransient<TokenClient> ();
 
             // register the client to load blogs from Cosmos DB.
-            builder.Services.AddTransient<SuperCodeClient>();
+            builder.Services.AddTransient<SuperCodeClient> ();
 
-            builder.Services.AddDevExpressBlazor();
+            builder.Services.AddSyncfusionBlazor ();
 
-            await builder.Build().RunAsync();
+            builder.Services.AddDevExpressBlazor ();
+
+            builder.Services.AddScoped<User>();
+
+            await builder.Build ().RunAsync ();
         }
     }
 }
