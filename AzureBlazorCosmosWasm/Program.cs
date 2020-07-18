@@ -57,8 +57,6 @@ namespace AzureBlazorCosmosWasm {
 
             builder.Services.AddSyncfusionBlazor ();
 
-            builder.Services.AddDevExpressBlazor ();
-
             builder.Services.AddScoped<User>();
 
             await builder.Build ().RunAsync ();

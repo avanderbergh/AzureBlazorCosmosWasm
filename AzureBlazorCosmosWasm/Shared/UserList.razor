@@ -6,16 +6,22 @@
  
 
 <h1>Users</h1>
-<h2>SyncFusion</h2>
-<SfGrid TValue="User" AllowPaging="true" Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update" })">
-    <SfDataManager Adaptor="Adaptors.CustomAdaptor">
-    <EFCoreCosmosAdaptor />
-    </SfDataManager>
-  <GridPageSettings PageSize="20"/>
-  <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true"></GridEditSettings>
+<SfGrid TValue="User"
+        AllowSorting="true"
+        AllowPaging="true"
+        ShowColumnChooser="true"
+        Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update", "Search", "ColumnChooser"})"
+>
+  <SfDataManager Adaptor="Adaptors.CustomAdaptor">
+    <UserDataAdaptor />
+  </SfDataManager>
+  <GridPageSettings PageSize="5"/>
+  <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Dialog" />
   <GridColumns>
+    <GridColumn Field="@nameof(User.Id)" IsPrimaryKey="true" IsIdentity="true" Width="0"/>
     <GridColumn Field="@nameof(User.FirstName)"/>
     <GridColumn Field="@nameof(User.LastName)"/>
+    <GridColumn Field="@nameof(User.Email)"/>
   </GridColumns>
 </SfGrid>
 
@@ -40,10 +46,10 @@
     protected async void OnRowInserting(Dictionary<string, object> itemProperties) {
       User newUser = UpdateItem(new User(), itemProperties);
       Users.Add(newUser);
-      using (var context = await Client.GetDbContextAsync())
-      {
-        context.Users.Add(newUser);
-        await context.SaveChangesAsync();
-      }
+
+      using var context = await Client.GetDbContextAsync();
+      
+      context.Users.Add(newUser);
+      await context.SaveChangesAsync();
     }
 }

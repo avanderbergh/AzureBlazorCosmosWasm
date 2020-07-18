@@ -1,0 +1,149 @@
+@using AzureBlazorCosmosWasm.Data
+@using Syncfusion.Blazor;
+@using Syncfusion.Blazor.Data;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+@using Microsoft.EntityFrameworkCore 
+@using SuperCodeData;
+@using Microsoft.Extensions.Logging;
+@using System;
+@using Newtonsoft.Json
+@using System.Dynamic;
+@using System.Reflection;
+
+@inject ILogger<User> Logger
+@inject SuperCodeClient Client;
+
+@inherits DataAdaptor<User>;
+
+<CascadingValue Value="@this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    [JsonIgnore]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string ErrorMessage { get; set; }
+
+    private List<User> Users = new List<User>();
+
+    private bool DataFetched = false;
+
+    private async Task FetchData()
+    {
+        if (DataFetched == false)
+        {
+            try
+            {
+                using var context = await Client.GetDbContextAsync();
+                Users = await context.Users.ToListAsync();
+            }
+            catch (AccessTokenNotAvailableException aex)
+            {
+                aex.Redirect();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+        }
+    }
+
+    public override async Task<object> ReadAsync(DataManagerRequest dm, string key = null)
+    {
+        await FetchData();
+        IEnumerable<User> DataSource = (IEnumerable<User>)Users;
+        if (dm.Search != null && dm.Search.Count > 0)
+        {
+            DataSource = DataOperations.PerformSearching(DataSource, dm.Search);
+        }
+        if (dm.Sorted != null && dm.Sorted.Count > 0)
+        {
+            DataSource = DataOperations.PerformSorting(DataSource, dm.Sorted);
+        }
+        if (dm.Where != null && dm.Where.Count > 0)
+        {
+            DataSource = DataOperations.PerformFiltering(DataSource, dm.Where, dm.Where[0].Operator);
+        }
+        int count = DataSource.Cast<User>().Count();
+        if (dm.Skip != 0)
+        {
+            DataSource = DataOperations.PerformSkip(DataSource, dm.Skip);
+        }
+        if (dm.Take != 0)
+        {
+            DataSource = DataOperations.PerformTake(DataSource, dm.Take);
+        }
+        return dm.RequiresCounts ? new DataResult() { Result = DataSource, Count = count } : (object)DataSource;
+    }
+
+    public override async Task<object> InsertAsync(DataManager dm, object data, string key)
+    {
+        try
+        {
+            using var context = await Client.GetDbContextAsync();
+            context.Users.Add(data as User);
+            await context.SaveChangesAsync();
+            Users.Add(data as User);
+        }
+        catch (AccessTokenNotAvailableException aex)
+        {
+            aex.Redirect();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        return data;
+    }
+
+    public override async Task<object> RemoveAsync(DataManager dm, object data, string KeyField, string key)
+    {
+        Logger.LogWarning("Removing ");
+        try
+        {
+            using var context = await Client.GetDbContextAsync();
+            User toRemove = await context.Users.FindAsync(data);
+            context.Users.Remove(toRemove);
+            await context.SaveChangesAsync();
+        }
+        catch (AccessTokenNotAvailableException aex)
+        {
+            aex.Redirect();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            Logger.LogError(ex.Message);
+        }
+        return data;
+    }
+
+    public override async Task<object> UpdateAsync(DataManager dm, object data, string keyField, string key)
+    {
+        try
+        {
+            using var context = await Client.GetDbContextAsync();
+    
+            User updatedUser = data as User;
+            User toUpdate = await context.Users.FindAsync(updatedUser.Id);
+            toUpdate.FirstName = updatedUser.FirstName;
+            toUpdate.LastName = updatedUser.LastName;
+            toUpdate.Email = updatedUser.Email;
+            context.Users.Update(toUpdate);
+            await context.SaveChangesAsync();
+        }
+        catch (AccessTokenNotAvailableException aex)
+        {
+            aex.Redirect();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            Logger.LogError(ex.Message);
+        }
+        return data;
+    }
+}

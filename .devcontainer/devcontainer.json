@@ -27,7 +27,7 @@
 		"ms-vscode.azure-account",
 		"ms-azuretools.vscode-azurefunctions",
 		"ms-vscode.azurecli",
-		"doggy8088.netcore-extension-pack"
+		"msjsdiag.debugger-for-edge"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -56,6 +56,8 @@
 	// Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
 	// "remoteUser": "vscode"
 }
+
+
 
 
 

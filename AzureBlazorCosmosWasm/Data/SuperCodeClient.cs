@@ -19,10 +19,7 @@ namespace AzureBlazorCosmosWasm.Data
 
         public async Task<SuperCodeContext> GetDbContextAsync()
         {
-            if (_credentials == null)
-            {
-                _credentials = await _tokenClient.GetTokenAsync();
-            }
+            _credentials ??= await _tokenClient.GetTokenAsync();
 
             SuperCodeContext context = null;
 
