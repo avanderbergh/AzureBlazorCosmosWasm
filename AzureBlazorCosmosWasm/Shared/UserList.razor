@@ -81,7 +81,7 @@
         <SfDropDownList 
           ID="UserTypeFilter"
           Placeholder="Type"
-          DataSource="@UserTypesDropDownData"
+          DataSource="@UserTypesFilterDropDownData"
           Value="@((string)(context as PredicateModel).Value)"
           TValue="string"
           TItem="string"
@@ -105,11 +105,14 @@
   SfDropDownList<string, string> DropDownList;
 
   public static List<string> UserTypesDropDownData = new List<string>();
+  public static List<string> UserTypesFilterDropDownData = new List<string>();
   
   protected override void OnInitialized()
   {
+    UserTypesFilterDropDownData.Add("All");
     foreach (string item in Enum.GetNames(typeof(UserType)))
     {
+      UserTypesFilterDropDownData.Add(item);
       UserTypesDropDownData.Add(item);
     }
   }
