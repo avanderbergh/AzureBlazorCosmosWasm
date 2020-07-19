@@ -65,6 +65,7 @@
         }
         if (dm.Where != null && dm.Where.Count > 0)
         {
+            Logger.LogWarning("Filtering");
             DataSource = DataOperations.PerformFiltering(DataSource, dm.Where, dm.Where[0].Operator);
         }
         int count = DataSource.Cast<User>().Count();

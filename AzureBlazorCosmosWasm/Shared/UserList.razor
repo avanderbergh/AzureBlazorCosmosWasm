@@ -12,19 +12,20 @@
  
 
 <h1>Users</h1>
-<SfGrid TValue="User"
+<SfGrid @ref="Grid"
+        TValue="User"
         AllowSorting="true"
         AllowPaging="true"
+        AllowFiltering="true"
         ShowColumnChooser="true"
         Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update", "Search", "ColumnChooser"})"
 >
   <SfDataManager Adaptor="Adaptors.CustomAdaptor">
     <UserDataAdaptor />
   </SfDataManager>
-  <GridPageSettings PageSize="5"/>
+  <GridPageSettings PageSize="20"/>
   <GridEvents OnActionBegin="OnActionBegin" TValue="User" />
   <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Dialog">
-
     <Template>
       @{
         var User = (context as User);
@@ -32,17 +33,17 @@
           <div class="form-row">
             <div class="form-group col-md-6">
               <label>First Name</label>
-              <SfTextBox ID="FirstName" Value="@(User.FirstName)" />
+              <SfTextBox ID="FirstName" @bind-Value="@(User.FirstName)" />
             </div>
             <div class="form-group col-md-6">
               <label>Last Name</label>
-              <SfTextBox ID="LastName" Value="@(User.LastName)" />
+              <SfTextBox ID="LastName" @bind-Value="@(User.LastName)" />
             </div>
           </div>
           <div class="form-row">
             <div class="form-group col-md-6">
               <label>Email</label>
-              <SfTextBox ID="EMail" Value="@(User.Email)" />
+              <SfTextBox ID="EMail" @bind-Value="@(User.Email)" />
             </div>
             <div class="form-group col-md-6">
               <SfDropDownList @ref="DropDownList"
@@ -52,7 +53,21 @@
                               DataSource="@UserTypesDropDownData"
                               Value="@((context as User).Type.ToString())"
                               TValue="string"
-                              TItem="string" />
+                              TItem="string"
+                />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <SfDatePicker ID="BirthDate"
+                            Placeholder="Birth Date"
+                            FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Always"
+                            @bind-Value="@(User.BirthDate)"
+              />
+            </div>
+            <div class="form-group col-md-6">
+              <label>Location Id</label>
+              <SfTextBox ID="LocationId" @bind-Value="@(User.LocationId)" />
             </div>
           </div>
         </div>    
@@ -60,8 +75,22 @@
     </Template>
   </GridEditSettings>
   <GridColumns>
-    <GridColumn Field="@nameof(User.Id)" IsPrimaryKey="true" IsIdentity="true" Width="0"/>
-    <GridColumn Field="@nameof(User.Type)" EditType="EditType.DropDownEdit" EditorSettings="@UserTypeEditParams"/>
+    <GridColumn Field="@nameof(User.Id)" IsPrimaryKey="true" IsIdentity="true" Width="0" />
+    <GridColumn Field="@nameof(User.Type)">
+      <FilterTemplate>
+        <SfDropDownList 
+          ID="UserTypeFilter"
+          Placeholder="Type"
+          DataSource="@UserTypesDropDownData"
+          Value="@((string)(context as PredicateModel).Value)"
+          TValue="string"
+          TItem="string"
+        >
+          <DropDownListEvents ValueChange="@Change" TValue="string"></DropDownListEvents>
+          <DropDownListFieldSettings Value="Type" Text="Type"></DropDownListFieldSettings>
+        </SfDropDownList>
+      </FilterTemplate>
+    </GridColumn>
     <GridColumn Field="@nameof(User.FirstName)"/>
     <GridColumn Field="@nameof(User.LastName)"/>
     <GridColumn Field="@nameof(User.Email)"/>
@@ -72,6 +101,7 @@
 </SfGrid>
 
 @code {
+  SfGrid<User> Grid;
   SfDropDownList<string, string> DropDownList;
 
   public static List<string> UserTypesDropDownData = new List<string>();
@@ -89,12 +119,22 @@
     Logger.LogWarning("Action Begin");
       if (Args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
       {
-          Args.Data.Type = (UserType)Enum.Parse(typeof(UserType), DropDownList.Value);
+        Args.Data.Type = (UserType)Enum.Parse(typeof(UserType), DropDownList.Value);
       }
   }
 
-  public IEditorSettings UserTypeEditParams = new DropDownEditCellParams
+  public void Change(@Syncfusion.Blazor.DropDowns.ChangeEventArgs<string> args)
   {
-    Params = new DropDownListModel<object, object>() { AllowFiltering = true, ShowClearButton = true, DataSource = UserTypesDropDownData }
-  };
+    Logger.LogWarning("Change");
+    if (args?.Value == "All")
+    {
+      Logger.LogWarning("If");
+      Grid.ClearFiltering();
+    }
+    else
+    {
+      Logger.LogWarning("Else");
+      Grid.FilterByColumn("Type", "contains", args?.Value);
+    }
+  }
 }
