@@ -81,12 +81,13 @@
 
     public override async Task<object> InsertAsync(DataManager dm, object data, string key)
     {
+
+        Logger.LogWarning("Adding ");
         try
         {
             using var context = await Client.GetDbContextAsync();
             context.Users.Add(data as User);
             await context.SaveChangesAsync();
-            Users.Add(data as User);
         }
         catch (AccessTokenNotAvailableException aex)
         {
@@ -94,6 +95,7 @@
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex.Message);
             ErrorMessage = ex.Message;
         }
         return data;
@@ -128,10 +130,17 @@
             using var context = await Client.GetDbContextAsync();
     
             User updatedUser = data as User;
+            Logger.LogWarning("Type: " + updatedUser.Type);
             User toUpdate = await context.Users.FindAsync(updatedUser.Id);
+            
             toUpdate.FirstName = updatedUser.FirstName;
             toUpdate.LastName = updatedUser.LastName;
             toUpdate.Email = updatedUser.Email;
+            toUpdate.BirthDate = updatedUser.BirthDate;
+            toUpdate.LocationId = updatedUser.LocationId;
+            
+            toUpdate.Type = updatedUser.Type;
+
             context.Users.Update(toUpdate);
             await context.SaveChangesAsync();
         }

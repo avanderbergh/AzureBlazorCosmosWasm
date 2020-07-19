@@ -1,8 +1,14 @@
 ﻿@using AzureBlazorCosmosWasm.Data
+@using Syncfusion.Blazor;
 @using Syncfusion.Blazor.Data
-@using SuperCodeData
+@using Syncfusion.Blazor.DropDowns;
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Inputs;
+@using SuperCodeData;
+@using Microsoft.Extensions.Logging;
 
-@inject SuperCodeClient Client
+@inject ILogger<User> Logger;
+@inject SuperCodeClient Client;
  
 
 <h1>Users</h1>
@@ -16,40 +22,79 @@
     <UserDataAdaptor />
   </SfDataManager>
   <GridPageSettings PageSize="5"/>
-  <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Dialog" />
+  <GridEvents OnActionBegin="OnActionBegin" TValue="User" />
+  <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Dialog">
+
+    <Template>
+      @{
+        var User = (context as User);
+        <div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>First Name</label>
+              <SfTextBox ID="FirstName" Value="@(User.FirstName)" />
+            </div>
+            <div class="form-group col-md-6">
+              <label>Last Name</label>
+              <SfTextBox ID="LastName" Value="@(User.LastName)" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Email</label>
+              <SfTextBox ID="EMail" Value="@(User.Email)" />
+            </div>
+            <div class="form-group col-md-6">
+              <SfDropDownList @ref="DropDownList"
+                              ID="UserType"
+                              Placeholder="Type"
+                              FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Always"
+                              DataSource="@UserTypesDropDownData"
+                              Value="@((context as User).Type.ToString())"
+                              TValue="string"
+                              TItem="string" />
+            </div>
+          </div>
+        </div>    
+      }
+    </Template>
+  </GridEditSettings>
   <GridColumns>
     <GridColumn Field="@nameof(User.Id)" IsPrimaryKey="true" IsIdentity="true" Width="0"/>
+    <GridColumn Field="@nameof(User.Type)" EditType="EditType.DropDownEdit" EditorSettings="@UserTypeEditParams"/>
     <GridColumn Field="@nameof(User.FirstName)"/>
     <GridColumn Field="@nameof(User.LastName)"/>
     <GridColumn Field="@nameof(User.Email)"/>
+    <GridColumn Field="@nameof(User.BirthDate)" HeaderText="Birth Date" EditType="EditType.DatePickerEdit" Format="d" TextAlign="TextAlign.Right" Type="ColumnType.Date" />
+    <GridColumn Field="@nameof(User.LocationId)"/>
+    
   </GridColumns>
 </SfGrid>
 
 @code {
-    [Parameter]
-    public List<User> Users { get; set; }
+  SfDropDownList<string, string> DropDownList;
 
-    static User UpdateItem(User item, Dictionary<string, object> itemProperties) {
-      foreach (var field in itemProperties.Keys) {
-        switch (field) {
-          case "FirstName":
-            item.FirstName = (string)itemProperties[nameof(User.FirstName)];
-            break;
-          case "LastName":
-            item.LastName = (string)itemProperties[nameof(User.LastName)];
-            break;
-        }
+  public static List<string> UserTypesDropDownData = new List<string>();
+  
+  protected override void OnInitialized()
+  {
+    foreach (string item in Enum.GetNames(typeof(UserType)))
+    {
+      UserTypesDropDownData.Add(item);
+    }
+  }
+
+  public void OnActionBegin(Syncfusion.Blazor.Grids.ActionEventArgs<User> Args)
+  {
+    Logger.LogWarning("Action Begin");
+      if (Args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
+      {
+          Args.Data.Type = (UserType)Enum.Parse(typeof(UserType), DropDownList.Value);
       }
-      return item;
-    }
+  }
 
-    protected async void OnRowInserting(Dictionary<string, object> itemProperties) {
-      User newUser = UpdateItem(new User(), itemProperties);
-      Users.Add(newUser);
-
-      using var context = await Client.GetDbContextAsync();
-      
-      context.Users.Add(newUser);
-      await context.SaveChangesAsync();
-    }
+  public IEditorSettings UserTypeEditParams = new DropDownEditCellParams
+  {
+    Params = new DropDownListModel<object, object>() { AllowFiltering = true, ShowClearButton = true, DataSource = UserTypesDropDownData }
+  };
 }

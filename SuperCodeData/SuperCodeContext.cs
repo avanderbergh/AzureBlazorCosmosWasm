@@ -19,7 +19,16 @@ namespace SuperCodeData
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().HasPartitionKey(o => o.FirstName);
+            modelBuilder.Entity<User>()
+                .HasPartitionKey(o => o.FirstName)
+                .OwnsOne(
+                    o => o.Location,
+                    loc =>
+                    {
+                        loc.ToJsonProperty("Location");
+                        loc.Property(p => p.Id).ToJsonProperty("Id");
+                        loc.Property(p => p.Title).ToJsonProperty("Title");
+                    });
         }
 
     }

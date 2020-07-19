@@ -1,0 +1,52 @@
+@using AzureBlazorCosmosWasm.Data
+@using Syncfusion.Blazor.Data
+@using SuperCodeData
+
+@inject SuperCodeClient Client
+ 
+
+<h1>Locations</h1>
+<SfGrid TValue="Location"
+        AllowSorting="true"
+        AllowPaging="true"
+        Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update", "Search"})"
+>
+  <SfDataManager Adaptor="Adaptors.CustomAdaptor">
+    <UserDataAdaptor />
+  </SfDataManager>
+  <GridPageSettings PageSize="5"/>
+  <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Dialog" />
+  <GridColumns>
+    <GridColumn Field="@nameof(Location.Id)" IsPrimaryKey="true" IsIdentity="true" Width="0"/>
+    <GridColumn Field="@nameof(Location.Title)"/>
+  </GridColumns>
+</SfGrid>
+
+@code {
+    [Parameter]
+    public List<User> Users { get; set; }
+
+    static User UpdateItem(User item, Dictionary<string, object> itemProperties) {
+      foreach (var field in itemProperties.Keys) {
+        switch (field) {
+          case "FirstName":
+            item.FirstName = (string)itemProperties[nameof(User.FirstName)];
+            break;
+          case "LastName":
+            item.LastName = (string)itemProperties[nameof(User.LastName)];
+            break;
+        }
+      }
+      return item;
+    }
+
+    protected async void OnRowInserting(Dictionary<string, object> itemProperties) {
+      User newUser = UpdateItem(new User(), itemProperties);
+      Users.Add(newUser);
+
+      using var context = await Client.GetDbContextAsync();
+      
+      context.Users.Add(newUser);
+      await context.SaveChangesAsync();
+    }
+}
