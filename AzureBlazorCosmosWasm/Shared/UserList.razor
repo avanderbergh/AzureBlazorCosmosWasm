@@ -6,6 +6,8 @@
 @using Syncfusion.Blazor.Inputs;
 @using SuperCodeData;
 @using Microsoft.Extensions.Logging;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+@using Microsoft.EntityFrameworkCore 
 
 @inject ILogger<User> Logger;
 @inject SuperCodeClient Client;
@@ -72,8 +74,17 @@
               />
             </div>
             <div class="form-group col-md-6">
-              <label>Location Id</label>
-              <SfTextBox ID="LocationId" @bind-Value="@(User.LocationId)" />
+              <SfDropDownList @ref="LocationDropDownList"
+                              ID="Location"
+                              Placeholder="Location"
+                              FloatLabelType="Syncfusion.Blazor.Inputs.FloatLabelType.Always"
+                              DataSource="@Locations"
+                              Value="@((context as User).LocationId)"
+                              TValue="string"
+                              TItem="Location"
+              >
+                <DropDownListFieldSettings Text="Title" Value="Id"></DropDownListFieldSettings>
+              </SfDropDownList>
             </div>
           </div>
         </div>    
@@ -109,15 +120,36 @@
 @code {
   SfGrid<User> Grid;
   SfDropDownList<string, string> DropDownList;
+  SfDropDownList<string, Location> LocationDropDownList;
 
   public static List<string> UserTypesDropDownData = new List<string>();
   public static List<string> UserTypesFilterDropDownData = new List<string>();
+  public static List<Location> Locations = new List<Location>();
 
   public string ErrorMessage;
+
+  private async Task FetchLocations()
+  {
+    try
+    {
+      using var context = await Client.GetDbContextAsync();
+      Locations = await context.Locations.ToListAsync();
+    }
+    catch (AccessTokenNotAvailableException aex)
+    {
+      aex.Redirect();
+    }
+    catch (Exception ex)
+    {
+      ErrorMessage = ex.Message;
+      Logger.LogError(ex.Message);
+    }
+  }
   
-  protected override void OnInitialized()
+  protected async override void OnInitialized()
   {
     UserTypesFilterDropDownData.Add("All");
+    await FetchLocations();
     foreach (string item in Enum.GetNames(typeof(UserType)))
     {
       UserTypesFilterDropDownData.Add(item);
@@ -131,6 +163,7 @@
       if (Args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
       {
         Args.Data.Type = (UserType)Enum.Parse(typeof(UserType), DropDownList.Value);
+        Args.Data.LocationId = LocationDropDownList.Value;
       }
   }
 
