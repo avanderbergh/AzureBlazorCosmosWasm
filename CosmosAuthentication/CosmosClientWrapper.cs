@@ -82,10 +82,10 @@ namespace CosmosAuthentication
         /// <returns>A populated <see cref="CosmosToken"/> instance.</returns>
         public async Task<CosmosToken> GetTokenForId(string id)
         {
-            var database = _client.GetDatabase(SuperCodeContext.SuperCode);
+            var database = _client.GetDatabase(LocationContext.SuperCode);
             var cosmosUser = await CreateOrReadUserAsync(database, id);
             var permissionId = $"Permission-{id}-blogs";
-            var container = database.GetContainer(nameof(SuperCodeContext));
+            var container = database.GetContainer(nameof(LocationContext));
             var permissions = new PermissionProperties(
                 id: permissionId,
                 permissionMode: PermissionMode.All,

@@ -10,6 +10,12 @@
 @inject ILogger<User> Logger;
 @inject SuperCodeClient Client;
  
+@{
+  if(ErrorMessage != null)
+  {
+    <p>@ErrorMessage</p>
+  }
+}
 
 <h1>Users</h1>
 <SfGrid @ref="Grid"
@@ -21,7 +27,7 @@
         Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update", "Search", "ColumnChooser"})"
 >
   <SfDataManager Adaptor="Adaptors.CustomAdaptor">
-    <UserDataAdaptor />
+    <UserDataAdaptor ErrorMessage="@ErrorMessage" />
   </SfDataManager>
   <GridPageSettings PageSize="20"/>
   <GridEvents OnActionBegin="OnActionBegin" TValue="User" />
@@ -106,6 +112,8 @@
 
   public static List<string> UserTypesDropDownData = new List<string>();
   public static List<string> UserTypesFilterDropDownData = new List<string>();
+
+  public string ErrorMessage;
   
   protected override void OnInitialized()
   {

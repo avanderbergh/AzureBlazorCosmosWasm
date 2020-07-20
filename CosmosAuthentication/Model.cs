@@ -10,7 +10,7 @@ namespace CosmosAuthentication
         public string Key { get; set; }
     }
 
-    public class SuperCodeContext
+    public class LocationContext
     {
         public static readonly string SuperCode
             = nameof(SuperCode).ToLower();

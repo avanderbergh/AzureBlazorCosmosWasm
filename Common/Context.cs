@@ -5,7 +5,7 @@
         public static readonly string SuperCode 
             = nameof(SuperCode).ToLower();
 
-        public static readonly string SuperCodeContext
-            = nameof(SuperCodeContext);
+        public static readonly string LocationContext
+            = nameof(LocationContext);
     }
 }

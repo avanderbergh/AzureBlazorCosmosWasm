@@ -17,17 +17,17 @@ namespace AzureBlazorCosmosWasm.Data
             _tokenClient = tokenClient;
         }
 
-        public async Task<SuperCodeContext> GetDbContextAsync()
+        public async Task<LocationContext> GetDbContextAsync()
         {
             _credentials ??= await _tokenClient.GetTokenAsync();
 
-            SuperCodeContext context = null;
+            LocationContext context = null;
 
             // use a delegate to always resolve late (no caching)
             CosmosToken getCredentials() => _credentials;
 
             // configure EF Core to use Cosmos DB
-            var options = new DbContextOptionsBuilder<SuperCodeContext>()
+            var options = new DbContextOptionsBuilder<LocationContext>()
                 .UseCosmos(getCredentials().Endpoint,
                     getCredentials().Key,
                     Context.SuperCode,
@@ -37,13 +37,13 @@ namespace AzureBlazorCosmosWasm.Data
             try
             {
                 // if credentials are stale this will fail
-                context = new SuperCodeContext(options.Options);
+                context = new LocationContext(options.Options);
             }
             catch
             {
                 // try again with fresh credentials
                 _credentials = await _tokenClient.GetTokenAsync();
-                context = new SuperCodeContext(options.Options);
+                context = new LocationContext(options.Options);
             }
 
             // give what we got
