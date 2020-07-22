@@ -7,8 +7,6 @@
 @using Microsoft.Extensions.Logging;
 @using System;
 @using Newtonsoft.Json
-@using System.Dynamic;
-@using System.Reflection;
 
 @inject ILogger<Location> Logger
 @inject SuperCodeClient Client;
@@ -64,12 +62,6 @@
         {
             DataSource = DataOperations.PerformSorting(DataSource, dm.Sorted);
         }
-        if (dm.Where != null && dm.Where.Count > 0)
-        {
-            Logger.LogWarning("Filtering");
-            DataSource = DataOperations.PerformFiltering(DataSource, dm.Where, dm.Where[0].Operator);
-        }
-        int count = DataSource.Cast<Location>().Count();
         if (dm.Skip != 0)
         {
             DataSource = DataOperations.PerformSkip(DataSource, dm.Skip);
@@ -78,6 +70,7 @@
         {
             DataSource = DataOperations.PerformTake(DataSource, dm.Take);
         }
+        int count = DataSource.Cast<Location>().Count();
         return dm.RequiresCounts ? new DataResult() { Result = DataSource, Count = count } : (object)DataSource;
     }
 
