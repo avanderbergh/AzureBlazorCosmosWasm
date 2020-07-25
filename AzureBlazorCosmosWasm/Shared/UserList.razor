@@ -3,7 +3,6 @@
 @using Syncfusion.Blazor.Data
 @using Syncfusion.Blazor.DropDowns;
 @using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Grids.Internal
 @using Syncfusion.Blazor.Inputs;
 @using SuperCodeData;
 @using Microsoft.Extensions.Logging;
@@ -112,7 +111,7 @@
     <GridColumn Field="@nameof(User.FirstName)"/>
     <GridColumn Field="@nameof(User.LastName)"/>
     <GridColumn Field="@nameof(User.Email)"/>
-    <GridColumn Field="@nameof(User.BirthDate)" HeaderText="Birth Date" EditType="EditType.DatePickerEdit" Format="d" TextAlign="TextAlign.Right" Type="ColumnType.Date" />
+    <GridColumn Field="@nameof(User.BirthDate)" HeaderText="Birth Date" EditType="EditType.DatePickerEdit" Format="d" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Right" Type="ColumnType.Date" />
     <GridForeignColumn TValue="Location" Field="@nameof(User.LocationId)" HeaderText="Location" ForeignKeyValue="Title">
         <Syncfusion.Blazor.Data.SfDataManager Adaptor="Adaptors.CustomAdaptor">
           <LocationDataAdaptor />

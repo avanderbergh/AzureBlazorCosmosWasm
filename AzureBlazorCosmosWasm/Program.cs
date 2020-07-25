@@ -34,9 +34,10 @@ namespace AzureBlazorCosmosWasm {
             builder.Services.AddMsalAuthentication (options => {
                 options.ProviderOptions
                     .DefaultAccessTokenScopes.Add ($"{functionEndpoint(builder)}user_impersonation");
+
                 builder.Configuration.Bind ("AzureAd", options.ProviderOptions.Authentication);
             });
-
+            
             // set up the authorization handler to inject tokens
             builder.Services.AddTransient<CosmosAuthorizationMessageHandler> ();
 
@@ -52,7 +53,7 @@ namespace AzureBlazorCosmosWasm {
             // register the client to retrieve Cosmos DB tokens.
             builder.Services.AddTransient<TokenClient> ();
 
-            // register the client to load blogs from Cosmos DB.
+            // register the client to load locations from Cosmos DB.
             builder.Services.AddTransient<SuperCodeClient> ();
 
             builder.Services.AddSyncfusionBlazor ();
